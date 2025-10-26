@@ -1,0 +1,60 @@
+
+/ocean/projects/cis240137p/yfei4/conda/envs/703hw5/lib/python3.10/site-packages/gym/utils/passive_env_checker.py:219: DeprecationWarning: WARN: Core environment is written in old step API which returns one bool instead of two. It is recommended to rewrite the environment with new step API. 
+  logger.deprecation(
+/ocean/projects/cis240137p/yfei4/conda/envs/703hw5/lib/python3.10/site-packages/gym/utils/passive_env_checker.py:225: DeprecationWarning: `np.bool8` is a deprecated alias for `np.bool_`.  (Deprecated NumPy 1.24)
+  if not isinstance(done, (bool, np.bool8)):
+/ocean/projects/cis240137p/yfei4/conda/envs/703hw5/lib/python3.10/site-packages/gym/utils/passive_env_checker.py:141: UserWarning: WARN: The obs returned by the `step()` method was expecting numpy array dtype to be float32, actual type: float64
+  logger.warn(
+/ocean/projects/cis240137p/yfei4/conda/envs/703hw5/lib/python3.10/site-packages/gym/utils/passive_env_checker.py:165: UserWarning: WARN: The obs returned by the `step()` method is not within the observation space.
+  logger.warn(f"{pre} is not within the observation space.")
+2025-10-26 13:18:41 run.py     INFO    : Test episode 9
+2025-10-26 13:18:49 run.py     INFO    : Test episode 19
+2025-10-26 13:18:59 run.py     INFO    : Test episode 29
+2025-10-26 13:19:10 run.py     INFO    : Test episode 39
+2025-10-26 13:19:19 run.py     INFO    : Test episode 49
+2025-10-26 13:19:20 run.py     INFO    : CEM PushingEnv: avg_reward: -15.4, avg_success: 0.88
+2025-10-26 13:19:20 run.py     INFO    : ### Q1.1.2: Random Policy (without MPC)
+2025-10-26 13:19:20 run.py     INFO    : Test episode 0
+2025-10-26 13:19:42 run.py     INFO    : Test episode 9
+2025-10-26 13:20:03 run.py     INFO    : Test episode 19
+2025-10-26 13:20:25 run.py     INFO    : Test episode 29
+2025-10-26 13:20:47 run.py     INFO    : Test episode 39
+2025-10-26 13:21:11 run.py     INFO    : Test episode 49
+2025-10-26 13:21:13 run.py     INFO    : Random PushingEnv: avg_reward: -32.74, avg_success: 0.7
+2025-10-26 13:21:13 run.py     INFO    : ### Q1.1.2: Random Policy + MPC
+2025-10-26 13:21:13 run.py     INFO    : Test episode 0
+2025-10-26 13:21:50 run.py     INFO    : Test episode 9
+2025-10-26 13:22:37 run.py     INFO    : Test episode 19
+2025-10-26 13:23:22 run.py     INFO    : Test episode 29
+2025-10-26 13:24:12 run.py     INFO    : Test episode 39
+2025-10-26 13:24:59 run.py     INFO    : Test episode 49
+2025-10-26 13:25:03 run.py     INFO    : Random + MPC PushingEnv: avg_reward: -14.1, avg_success: 0.92
+2025-10-26 13:25:03 run.py     INFO    : ### Q1.1.3:
+2025-10-26 13:25:03 run.py     INFO    : Test episode 0
+2025-10-26 13:25:11 run.py     INFO    : Test episode 9
+2025-10-26 13:25:20 run.py     INFO    : Test episode 19
+2025-10-26 13:25:29 run.py     INFO    : Test episode 29
+2025-10-26 13:25:40 run.py     INFO    : Test episode 39
+2025-10-26 13:25:50 run.py     INFO    : Test episode 49
+2025-10-26 13:25:51 run.py     INFO    : CEM Pushing2D: avg_reward: -14.46, avg_success: 0.94
+2025-10-26 13:25:51 run.py     INFO    : Test episode 0
+2025-10-26 13:26:19 run.py     INFO    : Test episode 9
+2025-10-26 13:26:56 run.py     INFO    : Test episode 19
+2025-10-26 13:27:34 run.py     INFO    : Test episode 29
+2025-10-26 13:28:12 run.py     INFO    : Test episode 39
+2025-10-26 13:28:45 run.py     INFO    : Test episode 49
+2025-10-26 13:28:49 run.py     INFO    : CEM + MPC Pushing2D: avg_reward: -9.32, avg_success: 1.0
+2025-10-26 13:28:49 run.py     INFO    : Test episode 0
+2025-10-26 13:29:01 run.py     INFO    : Test episode 9
+2025-10-26 13:29:15 run.py     INFO    : Test episode 19
+2025-10-26 13:29:30 run.py     INFO    : Test episode 29
+2025-10-26 13:29:48 run.py     INFO    : Test episode 39
+2025-10-26 13:30:06 run.py     INFO    : Test episode 49
+2025-10-26 13:30:09 run.py     INFO    : CEM Pushing2DNoisyControl: avg_reward: -27.92, avg_success: 0.52
+2025-10-26 13:30:09 run.py     INFO    : Test episode 0
+2025-10-26 13:30:50 run.py     INFO    : Test episode 9
+2025-10-26 13:31:47 run.py     INFO    : Test episode 19
+2025-10-26 13:32:36 run.py     INFO    : Test episode 29
+2025-10-26 13:33:26 run.py     INFO    : Test episode 39
+2025-10-26 13:34:14 run.py     INFO    : Test episode 49
+2025-10-26 13:34:18 run.py     INFO    : CEM + MPC Pushing2DNoisyControl: avg_reward: -14.88, avg_success: 0.86

@@ -65,9 +65,34 @@ class PENN(nn.Module):
         return mean, logvar
 
     def get_loss(self, targ, mean, logvar):
+        """
+        Compute the negative log-likelihood loss for a Gaussian distribution.
+        
+        For a Gaussian N(mean, var), the negative log likelihood is:
+        -log p(x|mean,var) = 0.5 * log(2π) + 0.5 * log(var) + 0.5 * (x-mean)^2 / var
+        
+        Arguments:
+            targ: target values (actual next state deltas), shape [batch_size, state_dim]
+            mean: predicted means, shape [batch_size, state_dim]
+            logvar: predicted log variances, shape [batch_size, state_dim]
+        
+        Returns:
+            scalar loss value (mean over batch and state dimensions)
+        """
         # TODO: write your code here
-
-        raise NotImplementedError
+        # Negative log likelihood loss for Gaussian distribution
+        # -log p(targ | mean, var) = 0.5 * [log(var) + (targ - mean)^2 / var] + const
+        
+        # Convert logvar to var
+        var = torch.exp(logvar)
+        
+        # Compute negative log likelihood
+        # NLL = 0.5 * [log(var) + (targ - mean)^2 / var]
+        # We can simplify: log(var) = logvar (already have this)
+        nll = 0.5 * (logvar + (targ - mean) ** 2 / var)
+        
+        # Return mean loss over all dimensions
+        return nll.mean()
 
     def create_network(self, n):
         layer_sizes = [
@@ -91,11 +116,59 @@ class PENN(nn.Module):
         Training the Probabilistic Ensemble (Algorithm 2)
         Argument:
           inputs: state and action inputs. Assumes that inputs are standardized.
-          targets: resulting states
+          targets: resulting states (deltas)
         Return:
             List containing the average loss of all the networks at each train iteration
 
         """
         # TODO: write your code here
-
-        raise NotImplementedError
+        # Algorithm 2: Training the Probabilistic Ensemble
+        # For n in 1:N (for each network):
+        #   Uniformly sample (with replacement) minibatch of size B from data
+        #   Take a gradient step of the loss for sampled minibatch
+        
+        losses = []
+        
+        for itr in range(num_train_itrs):
+            # Convert to tensors if needed
+            if not torch.is_tensor(inputs):
+                inputs_tensor = torch.tensor(inputs, device=self.device, dtype=torch.float)
+            else:
+                inputs_tensor = inputs
+                
+            if not torch.is_tensor(targets):
+                targets_tensor = torch.tensor(targets, device=self.device, dtype=torch.float)
+            else:
+                targets_tensor = targets
+            
+            total_loss = 0.0
+            
+            # Train each network in the ensemble
+            for net_idx in range(self.num_nets):
+                # Uniformly sample (with replacement) a minibatch of size batch_size
+                indices = np.random.choice(len(inputs), size=batch_size, replace=True)
+                batch_inputs = inputs_tensor[indices]
+                batch_targets = targets_tensor[indices]
+                
+                # Forward pass through the specific network
+                output = self.networks[net_idx](batch_inputs)
+                mean, logvar = self.get_output(output)
+                
+                # Compute loss
+                loss = self.get_loss(batch_targets, mean, logvar)
+                
+                # Backward pass and optimization
+                self.opt.zero_grad()
+                loss.backward()
+                self.opt.step()
+                
+                total_loss += loss.item()
+            
+            # Average loss across all networks
+            avg_loss = total_loss / self.num_nets
+            losses.append(avg_loss)
+            
+            if itr % 10 == 0 or itr == num_train_itrs - 1:
+                log.info(f"Iteration {itr}/{num_train_itrs}, Loss: {avg_loss:.4f}")
+        
+        return losses

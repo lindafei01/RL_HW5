@@ -156,18 +156,67 @@ class MPC:
         Trajectory Sampling with TS1 (Algorithm 3) using an ensemble of learned dynamics model to predict the next state.
             :param states  : [self.popsize * self.num_particles, self.state_dim]
             :param actions : [self.popsize, self.action_dim]
+            
+        Note: This is a fully vectorized implementation. 
+        Trade-off: All networks process all inputs (computational overhead of factor num_nets),
+        but we gain significant speedup from batch processing and GPU parallelization.
+        For small ensembles (1-5 networks), this is the most efficient approach.
         """
-        # TODO: write your code here
-        # REMEMBER: model prediction is delta
-        # Next state = delta sampled from model prediction + CURRENT state!
-
-        raise NotImplementedError
+        popsize = actions.shape[0]
+        num_samples = popsize * self.num_particles
+        
+        # Repeat actions for each particle: [popsize * num_particles, action_dim]
+        actions_expanded = np.repeat(actions, self.num_particles, axis=0)
+        
+        # Concatenate states and actions as input to the model
+        inputs = np.concatenate([states, actions_expanded], axis=-1)
+        
+        # TS1: For each state-action pair, randomly select which network to use
+        network_indices = np.random.randint(0, self.num_nets, size=num_samples)
+        
+        with torch.no_grad():
+            # Get predictions from all networks in the ensemble
+            predictions = self.model(inputs)  # list of (mean, logvar) tuples for each network
+            
+            # Stack predictions from all networks: [num_nets, num_samples, state_dim]
+            means = torch.stack([pred[0] for pred in predictions])
+            logvars = torch.stack([pred[1] for pred in predictions])
+            
+            # Vectorized selection using advanced indexing
+            sample_indices = torch.arange(num_samples, device=means.device)
+            network_indices_torch = torch.tensor(network_indices, device=means.device, dtype=torch.long)
+            
+            # Select the appropriate network's prediction for each sample
+            selected_means = means[network_indices_torch, sample_indices]  # [num_samples, state_dim]
+            selected_logvars = logvars[network_indices_torch, sample_indices]  # [num_samples, state_dim]
+            
+            # Sample deltas from the predicted Gaussian distributions (fully vectorized)
+            # delta ~ N(mean, exp(logvar))
+            std = torch.exp(0.5 * selected_logvars)  # More numerically stable than sqrt(exp(logvar))
+            deltas = selected_means + std * torch.randn_like(selected_means)
+            
+            # Single GPU→CPU transfer
+            deltas = deltas.cpu().numpy()
+        
+        # Next state = current state + predicted delta (vectorized)
+        return states + deltas
 
     def predict_next_state_gt(self, states, actions):
         """Given a list of state action pairs, use the ground truth dynamics to predict the next state"""
         # TODO: write your code here
-
-        raise NotImplementedError
+        # states: [popsize * num_particles, state_dim] = [popsize, 8] (num_particles=1 for GT dynamics)
+        # actions: [popsize, action_dim]
+        
+        # When using GT dynamics, num_particles must be 1, so we have popsize state-action pairs
+        popsize = actions.shape[0]
+        next_states = []
+        
+        for i in range(popsize):
+            # Get the next state for each state-action pair using the environment's ground truth dynamics
+            next_state = self.env.get_nxt_state(states[i], actions[i])
+            next_states.append(next_state)
+        
+        return np.array(next_states)
 
     def train(self, obs_trajs, acs_trajs, rews_trajs, num_train_itrs=5):
         """
